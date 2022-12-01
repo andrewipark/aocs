@@ -1,14 +1,20 @@
 import heapq
-heap = [[-1, None]] * 3
-with open('1.txt') as f:
-	current = [0, 0]
-	for line in f:
+
+heap = []
+
+# I like Cal's (g.split() for g in text_blob.split("\n\n")) better
+def split_it(i):
+	lines = []
+	for line in i:
 		line = line.strip()
 		if not line:
-			heapq.heappushpop(heap, current[:])
-			current[1] += 1
-			current[0] = 0
+			yield lines
+			lines = []
 		else:
-			current[0] += int(line)
+			lines.append(line)
+
+with open('1.txt') as f:
+	# pt1: use max
+	heap = heapq.nlargest(3, (sum(int(b) for b in a) for a in split_it(f)))
+
 print(heap)
-print(sum(x[0] for x in heap))
