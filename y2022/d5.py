@@ -26,10 +26,19 @@ with open('5.txt') as f:
 		num, src, dst = (int(x) for x in m.group(1,2,3))
 		moves.append((num, src-1, dst-1))
 
+	state_b = [x[:] for x in state]
+
 	for num, src, dst in moves:
+		# part a
 		assert len(state[src]) >= num
 		# yes you can do slicing but idc
 		for i in range(num):
 			state[dst].append(state[src].pop())
 
+		# part b
+		assert len(state_b[src]) >= num
+		state_b[dst].extend(state_b[src][-num:])
+		del state_b[src][-num:]
+
 	print(''.join((x[-1] for x in state)))
+	print(''.join((x[-1] for x in state_b)))
