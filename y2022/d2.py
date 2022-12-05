@@ -26,7 +26,7 @@ def p(l):
 
 def pb(l):
 	a, b = (ord(x) for x in l.split())
-	 # now it's the sign of the result we need
+	# now it's the sign of the result we need
 	return (RPS(a - ord('A')), b - ord('Y'))
 
 def score(opponent: RPS, you: RPS):
