@@ -19,9 +19,6 @@ def overlaps(a, b):
 	if b[0] <= a[1] and b[1] >= a[1]:
 		return True
 	return False
- 
-with open('4.txt') as f:
-	print([parse(x) for x in list(f)[:5]])
 
 with open('4.txt') as f:
 	print(sum((1 for x in f if contains(*parse(x)))))

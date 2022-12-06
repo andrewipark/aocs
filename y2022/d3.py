@@ -19,6 +19,7 @@ def prio(x):
 		return ord(x) - ord('a') + 1
 
 with open('3.txt') as f:
+	# strip doesn't matter here b/c floor div. still chooses correctly
 	print(sum((prio(str(one_common_item(*rucksack(l)))) for l in f)))
 
 with open('3.txt') as f:
