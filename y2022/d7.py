@@ -53,7 +53,7 @@ def parse(commands) -> Dir:
 
 	return dir_stack[0]
 
-def print_dir(e, m: dict[tuple[str], Any], curr_path: list[str] = None):
+def print_dir(e, m: dict[tuple[str], Any], curr_path: tuple[str] = None):
 	if isinstance(e, File):
 		print('    ' *  len(curr_path), e)
 	elif isinstance(e, Dir):
@@ -61,31 +61,50 @@ def print_dir(e, m: dict[tuple[str], Any], curr_path: list[str] = None):
 		if e.entries is None:
 			print('    ' * (len(curr_path) + 1), '!!!!! UNVISITED !!!!!')
 	else:
-		raise ValueError()
+		raise ValueError
 
-def visit(d: Dir, f, curr_path: list[str] = None):
+def calc_size(e, m: dict[tuple[str], Any], curr_path: tuple[str] = None):
+	if isinstance(e, File):
+		m[tuple(list(curr_path) + [e.name])] = e.size
+	elif isinstance(e, Dir):
+		size = sum((m[tuple(list(curr_path) + [f])] for f in e.entries.keys()))
+		m[tuple(list(curr_path))] = size
+	else:
+		raise ValueError
+
+def clear_file_keys(e, m: dict[tuple[str], Any], curr_path: tuple[str] = None):
+	if isinstance(e, File):
+		del m[tuple(list(curr_path) + [e.name])]
+
+def visit(d: Dir, f, curr_path: tuple[str] = None, post: bool = False):
 	if curr_path is None:
 		curr_path = tuple()
-	f(d, curr_path)
+	if not post:
+		f(d, curr_path)
 	for e in d.entries.values():
 		if isinstance(e, File):
 			f(e, curr_path)
 		elif isinstance(e, Dir):
 			new_path = tuple(list(curr_path) + [e.name])
-			visit(e, f, new_path)
+			visit(e, f, new_path, post)
 		else:
 			raise ValueError
+	if post:
+		f(d, curr_path)
 
-def print_dir_cb(m: dict[tuple[str], Any]):
-	def print_dir_closure(e, curr_path: list[str] = None):
-		print_dir(e, m, curr_path)
-	return print_dir_closure
+def visit_cb(m: dict[tuple[str], Any], f):
+	def visit_closure(e, curr_path: tuple[str] = None):
+		f(e, m, curr_path)
+	return visit_closure
 
 if __name__ == '__main__':
 	with open('i7.txt') as f:
 		commands = [x.strip().split('\n') for x in f.read().split('$ ')]
 	commands = [(c[0], c[1:]) for c in commands[2:]]
-	print(commands[:5])
 
 	tree = parse(commands)
-	visit(tree, print_dir_cb({}))
+	m = {}
+	visit(tree, visit_cb(m, calc_size), post = True)
+	# visit(tree, visit_cb(m, print_dir))
+	visit(tree, visit_cb(m, clear_file_keys))
+	print(sum((v for v in m.values() if v <= 100000)))
