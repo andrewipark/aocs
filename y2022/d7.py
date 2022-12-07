@@ -53,21 +53,33 @@ def parse(commands) -> Dir:
 
 	return dir_stack[0]
 
-def print_dir(d: Dir, m: dict[tuple[str], Any], curr_path: list[str] = None):
+def print_dir(e, m: dict[tuple[str], Any], curr_path: list[str] = None):
+	if isinstance(e, File):
+		print('    ' *  len(curr_path), e)
+	elif isinstance(e, Dir):
+		print('    ' * len(curr_path), e.name + ": " + str(m.get(curr_path)))
+		if e.entries is None:
+			print('    ' * (len(curr_path) + 1), '!!!!! UNVISITED !!!!!')
+	else:
+		raise ValueError()
+
+def visit(d: Dir, f, curr_path: list[str] = None):
 	if curr_path is None:
 		curr_path = tuple()
-	print('    ' * len(curr_path) + d.name + ": " + str(m.get(curr_path)))
-	if d.entries is None:
-		print('    ' * (len(curr_path) + 1), '!!!!! UNVISITED !!!!!')
-		return
+	f(d, curr_path)
 	for e in d.entries.values():
 		if isinstance(e, File):
-			print('    ' *  len(curr_path), e)
+			f(e, curr_path)
 		elif isinstance(e, Dir):
 			new_path = tuple(list(curr_path) + [e.name])
-			print_dir(e, m, new_path)
+			visit(e, f, new_path)
 		else:
-			raise ValueError()
+			raise ValueError
+
+def print_dir_cb(m: dict[tuple[str], Any]):
+	def print_dir_closure(e, curr_path: list[str] = None):
+		print_dir(e, m, curr_path)
+	return print_dir_closure
 
 if __name__ == '__main__':
 	with open('i7.txt') as f:
@@ -76,4 +88,4 @@ if __name__ == '__main__':
 	print(commands[:5])
 
 	tree = parse(commands)
-	print_dir(tree, {})
+	visit(tree, print_dir_cb({}))
