@@ -106,5 +106,16 @@ if __name__ == '__main__':
 	m = {}
 	visit(tree, visit_cb(m, calc_size), post = True)
 	# visit(tree, visit_cb(m, print_dir))
+	# otherwise we'll double count file sizes
 	visit(tree, visit_cb(m, clear_file_keys))
+	# part 1
 	print(sum((v for v in m.values() if v <= 100000)))
+
+	# part 2
+	used = m[tuple()]
+	total = 70_000000
+	free = total - used
+	need = 30_000000
+	delta = need - free
+	print(used, total, free, need, delta)
+	print(min((v for v in m.values() if v >= delta)))
