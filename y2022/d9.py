@@ -25,19 +25,22 @@ def s(x):
 		return -1
 	return 0
 
-def move(d, l, pos_h, pos_t, state):
+def move(d, l, poses, state):
 	for _ in range(l):
-		pos_h = a(pos_h, d)
-		delta = pf(lambda i, j: abs(i-j), pos_h, pos_t)
-		if max(delta) > 2:
-			assert False, (pos_h, pos_t, delta)
-		if max(delta) == 2:
-			# move_t = pf(lambda i, j: s(i-j), pos_h, pos_t)
-			# pos_t = pf(operator.add, pos_t, move)
-			pos_t = pf(lambda h, t: s(h-t) + t, pos_h, pos_t)
-		state[pos_t] = True
+		poses[0] = a(poses[0], d)
+		# pairwise doesn't work well here
+		for l in range(len(poses) - 1):
+			pos_h, pos_t = poses[l:l+2]
+			delta = pf(lambda i, j: abs(i-j), pos_h, pos_t)
+			if max(delta) > 2:
+				assert False, (i, pos_h, pos_t, delta)
+			if max(delta) == 2:
+				# move_t = pf(lambda i, j: s(i-j), pos_h, pos_t)
+				# pos_t = pf(operator.add, pos_t, move)
+				pos_t = pf(lambda h, t: s(h-t) + t, pos_h, pos_t)
 
-	return pos_h, pos_t
+			poses[l:l+2] = [pos_h, pos_t]
+		state[poses[-1]] = True
 
 if __name__ == '__main__':
 	l = []
@@ -47,10 +50,9 @@ if __name__ == '__main__':
 	l = [m.split(' ', 1) for m in l]
 	l = [(Dir.o(m[0]), int(m[1])) for m in l]
 
-	state = {}
-	pos_h = (0, 0)
-	pos_t = (0, 0)
-	for m in l:
-		pos_h, pos_t = move(*m, pos_h, pos_t, state)
-
-	print(len(state))
+	for i in (2, 10):
+		state = {}
+		poses = [(0, 0)] * i
+		for m in l:
+			move(*m, poses, state)
+		print(len(state))
