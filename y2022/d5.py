@@ -1,12 +1,24 @@
 import re
 
+def move_a(d, s, l):
+	for i in range(l):
+		d.append(s.pop())
+
+def move_b(d, s, l):
+	d.extend(s[-l:])
+	del s[-l:]
+
+def do(state, moves, mf):
+	for num, src, dst in moves:
+		assert len(state[src]) >= num
+		mf(state[dst], state[src], num)
+
 with open('5.txt') as f:
 	initial_lines, moves_lines = [x.split('\n') for x in f.read().split('\n\n')]
-	initial_lines.pop() # don't emit sequential numbers like this, damn it
-	guess_crates = len(initial_lines[0])
-	guess_crates //= 4
-	guess_crates += 1 # because falta ending '\n'
-	moves_lines.pop() # there's an ending '\n'?
+	initial_lines.pop() # rm numbering
+	# x crates generates a line of len x * 4 - 1
+	guess_crates = len(initial_lines[0]) // 4 + 1
+	moves_lines.pop() # rm last blank line b/c file is well behaved
 
 	state = [[] for x in range(guess_crates)]
 	for l in initial_lines:
@@ -17,7 +29,8 @@ with open('5.txt') as f:
 				state[x].append(s)
 
 	# so that stuff at the "top" vertically goes to the end
-	state = [x[::-1] for x in state]
+	state_a = [x[::-1] for x in state]
+	state_b = [x[:] for x in state_a]
 
 	moves = [] # (num, from, to)
 	for l in moves_lines:
@@ -26,19 +39,8 @@ with open('5.txt') as f:
 		num, src, dst = (int(x) for x in m.group(1,2,3))
 		moves.append((num, src-1, dst-1))
 
-	state_b = [x[:] for x in state]
+	do(state_a, moves, move_a)
+	do(state_b, moves, move_b)
 
-	for num, src, dst in moves:
-		# part a
-		assert len(state[src]) >= num
-		# yes you can do slicing but idc
-		for i in range(num):
-			state[dst].append(state[src].pop())
-
-		# part b
-		assert len(state_b[src]) >= num
-		state_b[dst].extend(state_b[src][-num:])
-		del state_b[src][-num:]
-
-	print(''.join((x[-1] for x in state)))
+	print(''.join((x[-1] for x in state_a)))
 	print(''.join((x[-1] for x in state_b)))
