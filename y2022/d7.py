@@ -1,8 +1,6 @@
 from collections import namedtuple as nt
 from typing import Any
 
-commands = []
-
 root_dir = {}
 
 # It's probably redundant to store the name in the entry classes AND the entry map keys.

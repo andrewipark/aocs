@@ -35,7 +35,6 @@ B= '\033[90m'
 R= '\033[0m'
 
 if __name__ == '__main__':
-	l = []
 	with open('i10.txt') as f:
 		l = f.read().split('\n')
 	l.pop()

@@ -43,7 +43,6 @@ def move(d, l, poses, state):
 		state[poses[-1]] = True
 
 if __name__ == '__main__':
-	l = []
 	with open('i9.txt') as f:
 		l = f.read().split('\n')
 	l.pop()
