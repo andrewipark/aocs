@@ -16,15 +16,26 @@ class Monkey:
 	def __repr__(self):
 		return "Monkey(" + repr([self.items, self.op_str, self.test_div_num, self.true_dest, self.false_dest]) + ")"
 
-	def turn(self):
+	def turn(self, reduce_worry):
 		results = [] # (worry, dest)[]
 		for old in self.items:
 			new = eval(self.op_str)
-			new //= 3
+			if reduce_worry:
+				new //= 3
 			results.append((new, self.true_dest if new % self.test_div_num == 0 else self.false_dest))
 		self.inspect_count += len(self.items)
 		self.items.clear()
 		return results
+
+def simul(monkeys, turns, reduce_worry):
+	safe_mod = prod((m.test_div_num for m in monkeys))
+	for _ in range(turns):
+		for m in monkeys:
+			result = m.turn(reduce_worry)
+			for worry, dest in result:
+				monkeys[dest].items.append(worry)
+		for m in monkeys:
+			m.items = [x % safe_mod for x in m.items]
 
 if __name__ == '__main__':
 	with open('i11.txt') as f:
@@ -50,12 +61,7 @@ if __name__ == '__main__':
 			int(m.group(6)),
 		))
 
-	for r in [20]:
+	for turns, reduce_worry in [(20, True), (10000, False)]:
 		monkes = deepcopy(monkeys)
-		for t in range(r):
-			for m in monkes:
-				result = m.turn()
-				for worry, dest in result:
-					monkes[dest].items.append(worry)
-
+		simul(monkes, turns, reduce_worry)
 		print(prod(heapq.nlargest(2, (m.inspect_count for m in monkes))))
