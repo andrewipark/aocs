@@ -38,7 +38,7 @@ def simul(monkeys, turns, reduce_worry):
 		for m in monkeys:
 			m.items = [x % safe_mod for x in m.items]
 
-if __name__ == '__main__':
+def main():
 	with open('i11.txt') as f:
 		inputs = [x.strip() for x in f.read().split('\n\n')]
 
@@ -66,3 +66,6 @@ if __name__ == '__main__':
 		monkes = deepcopy(monkeys)
 		simul(monkes, turns, reduce_worry)
 		print(prod(heapq.nlargest(2, (m.inspect_count for m in monkes))))
+
+if __name__ == '__main__':
+	main()

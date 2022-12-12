@@ -13,8 +13,9 @@ def do(state, moves, mf):
 		assert len(state[src]) >= num
 		mf(state[dst], state[src], num)
 
-with open('5.txt') as f:
-	initial_lines, moves_lines = [x.split('\n') for x in f.read().split('\n\n')]
+def main():
+	with open('5.txt') as f:
+		initial_lines, moves_lines = [x.split('\n') for x in f.read().split('\n\n')]
 	initial_lines.pop() # rm numbering
 	# x crates generates a line of len x * 4 - 1
 	guess_crates = len(initial_lines[0]) // 4 + 1
@@ -44,3 +45,6 @@ with open('5.txt') as f:
 
 	print(''.join((x[-1] for x in state_a)))
 	print(''.join((x[-1] for x in state_b)))
+
+if __name__ == '__main__':
+	main()

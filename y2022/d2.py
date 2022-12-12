@@ -50,8 +50,11 @@ def scoreb(opponent: RPS, you_result: int):
 	)
 	# or: score(opponent, shape)
 
-with open('2.txt') as f:
-	print(sum((score(*pa(x)) for x in f)))
+def main():
+	with open('2.txt') as f:
+		print(sum((score(*pa(x)) for x in f)))
+	with open('2.txt') as f:
+		print(sum((scoreb(*pb(x)) for x in f)))
 
-with open('2.txt') as f:
-	print(sum((scoreb(*pb(x)) for x in f)))
+if __name__ == '__main__':
+	main()
