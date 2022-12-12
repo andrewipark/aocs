@@ -29,7 +29,7 @@ R= '\033[0m'
 
 def v0(grid):
 	for x in grid:
-		print(''.join((cc_height(y) + '█' for y in x)) + R)
+		print(''.join((cc_height(y[0]) + '█' for y in x)) + R)
 
 def neighbors(grid, pos, visited, val, pred):
 	l = []
@@ -51,9 +51,9 @@ def p1_pred(grid, src, dst):
 	dh = grid[dst[0]][dst[1]][0]
 	return dh - sh <= 1
 
-def bfs_p1(grid, start):
+def bfs_p1(grid, starts):
 	visited = set()
-	q = deque([(start, None, 0)])
+	q = deque([(x, None, 0) for x in starts])
 	for s in q:
 		visited.add(s[0])
 	while q:
@@ -61,12 +61,27 @@ def bfs_p1(grid, start):
 		grid[curr[0]][curr[1]] = (grid[curr[0]][curr[1]][0], dist)
 		q.extend(neighbors(grid, curr, visited, dist + 1, p1_pred))
 
+def locs_where(grid, pred):
+	l = []
+	for i, r in enumerate(grid):
+		for j, x in enumerate(r):
+			if pred(x):
+				l.append((i, j))
+	return l
+
+def reset_grid(grid):
+	return [[(x[0], None) for x in y] for y in grid]
+
 def main():
 	with open('i12.txt') as f:
 		grid, start, end = make_grid(f.read())
-	# v0(l)
-	bfs_p1(grid, start)
+	# v0(grid)
+	bfs_p1(grid, [start])
 	print(grid[end[0]][end[1]])
+	grid = reset_grid(grid)
+	bfs_p1(grid, locs_where(grid, lambda cell: cell[0] == 0))
+	print(grid[end[0]][end[1]])
+
 
 if __name__ == '__main__':
 	main()
