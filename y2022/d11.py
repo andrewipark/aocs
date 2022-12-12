@@ -8,6 +8,7 @@ class Monkey:
 	def __init__(self, items, op_str, test_div_num, true_dest, false_dest):
 		self.items = items
 		self.op_str = op_str
+		self.op_fn = compile(op_str, '<string>', 'eval')
 		self.test_div_num = test_div_num
 		self.true_dest = true_dest
 		self.false_dest = false_dest
@@ -19,7 +20,7 @@ class Monkey:
 	def turn(self, reduce_worry):
 		results = [] # (worry, dest)[]
 		for old in self.items:
-			new = eval(self.op_str)
+			new = eval(self.op_fn)
 			if reduce_worry:
 				new //= 3
 			results.append((new, self.true_dest if new % self.test_div_num == 0 else self.false_dest))
