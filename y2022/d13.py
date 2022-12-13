@@ -1,3 +1,6 @@
+from functools import cmp_to_key as c2k
+from itertools import chain
+
 # copy-paste
 def s(x):
 	if x > 0:
@@ -27,6 +30,11 @@ def main():
 	pairs = [tuple((eval(x) for x in p)) for p in inputs]
 	# fucking 1-based indexing!!
 	print(sum((i + 1 for i, x in enumerate((c(a, b) for a, b in pairs)) if x <= 0)))
+
+	flat = list(chain.from_iterable(pairs))
+	flat.extend(([[2]], [[6]]))
+	flat.sort(key = c2k(c))
+	print((flat.index([[2]]) + 1) * (flat.index([[6]]) + 1))
 
 if __name__ == '__main__':
 	main()
