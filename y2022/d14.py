@@ -12,17 +12,17 @@ def p0(grid):
 
 def simul_grain(board, la, lb):
 	while True:
-		while la < board.shape[0] and board[la, lb] == 0:
+		while la < board.shape[0] and not board[la, lb]:
 			la += 1
 		if la >= board.shape[0]:
 			return None # fell off the bottom
 
-		if board[la, lb - 1] == 0:
+		if not board[la, lb - 1]:
 			lb -= 1
 			if lb < 0:
 				return None # fell off left
 			continue
-		if board[la, lb + 1] == 0:
+		if not board[la, lb + 1]:
 			lb += 1
 			if lb >= board.shape[1]:
 				return None # fell off right
