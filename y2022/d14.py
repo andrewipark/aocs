@@ -16,21 +16,20 @@ def simul_grain(board, la, lb):
 			la += 1
 		if la >= board.shape[0]:
 			return None # fell off the bottom
-		if board[la, lb] != 0:
-			if lb <= 0:
+
+		if board[la, lb - 1] == 0:
+			lb -= 1
+			if lb < 0:
 				return None # fell off left
-			if board[la, lb - 1] == 0:
-				lb -= 1
-				continue
+			continue
+		if board[la, lb + 1] == 0:
+			lb += 1
 			if lb >= board.shape[1]:
 				return None # fell off right
-			if board[la, lb + 1] == 0:
-				lb += 1
-				continue
-			# all three spots are occupied
-			la -= 1
-			return la, lb
-		raise ValueError
+			continue
+		# all three spots are occupied
+		la -= 1
+		return la, lb
 
 def input_from_text(text):
 	inputs = [x.split(' -> ') for x in text.strip().split('\n')]
