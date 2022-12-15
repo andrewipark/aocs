@@ -18,7 +18,7 @@ def sensors_from_input(text):
 		s.append(tuple(map(int, (m[1], m[2], m[3], m[4]))))
 	return s
 
-def coalesce_closed_ranges(x):
+def coalesce_closed_ranges(x, constrain = None):
 	subsumed = [False for _ in x]
 	new = []
 
@@ -50,9 +50,13 @@ def coalesce_closed_ranges(x):
 		else:
 			i = j
 		j += 1
-	return [n for n in new if n]
 
-def data(sensors, Y, constrain = False):
+	if constrain:
+		return [(max(n[0], constrain[0]), min(n[1], constrain[1])) for n in new if n]
+	else:
+		return [n for n in new if n]
+
+def data(sensors, Y, constrain = None):
 	beacons = set(((s[2], s[3]) for s in sensors))
 	closed_ranges = []
 	for s in sensors:
@@ -63,7 +67,8 @@ def data(sensors, Y, constrain = False):
 			continue
 		closed_ranges.append((s[0] - sense_range, s[0] + sense_range))
 
-	return beacons, coalesce_closed_ranges(closed_ranges)
+	closed_ranges = coalesce_closed_ranges(closed_ranges, constrain)
+	return beacons, closed_ranges
 
 def part_a(sensors, beacons, closed_ranges, Y):
 	# brute force
@@ -81,11 +86,24 @@ def part_a(sensors, beacons, closed_ranges, Y):
 
 	return sum((f - d + 1 for d, f in closed_ranges)) - len([b for b in beacons if b[1] == Y])
 
+def part_b(guesses, sensors, height):
+	for i in guesses:
+		beacons, closed_ranges = data(sensors, i, (0, height))
+		# ignore beacons because they're already covered
+		if (part_a(sensors, [], closed_ranges, i) != height + 1):
+			print(i, closed_ranges)
+			assert len(closed_ranges) == 2
+			j = closed_ranges[0][1] + 1
+			return j * height + i
+	return None
+
 def main():
 	with open('i15.txt') as f:
 		sensors = sensors_from_input(f.read())
 	Y = 2000000
 	print(part_a(sensors, *data(sensors, Y), Y))
+	print(part_b((2767556,), sensors, 2 * Y))
+	# range(Y * 2 + 1)))
 
 if __name__ == '__main__':
 	main()
