@@ -37,14 +37,19 @@ def input_from_text(text):
 	# flip from x,y to r,c for terminal display
 	return [[tuple([int(x) for x in p.split(',')][::-1]) for p in l] for l in inputs]
 
-def grid_from_input(inputs, part2 = False):
+def grid_from_input(inputs, part_b = False):
 	# normalize c
 	max_a = max((p[0] for p in chain.from_iterable(inputs)))
 	max_b = max((p[1] for p in chain.from_iterable(inputs)))
 	min_b = min((p[1] for p in chain.from_iterable(inputs)))
+	if part_b:
+		# sand can spread up to that much farther
+		min_b -= max_a + 1
+		max_b += max_a + 1
 	inputs = [[(a, b - min_b) for a, b in l] for l in inputs]
-	board = np.zeros((max_a + 1, max_b - min_b + 1), dtype=np.int8)
-	# sand at 0, 500 - min_b
+	board = np.zeros((max_a + 1 + (2 if part_b else 0), max_b - min_b + 1), dtype=np.int8)
+	if part_b:
+		board[-1,:] = 1
 
 	for l in inputs:
 		for m, n in pairwise(l):
@@ -61,11 +66,15 @@ def grid_from_input(inputs, part2 = False):
 
 	return board, min_b
 
-def part_a(board, min_b):
+def part(board, min_b, part_b = False):
 	c = 0
 	while True:
+		if board[0, 500 - min_b]:
+			assert part_b
+			break
 		result = simul_grain(board, 0, 500 - min_b)
 		if not result:
+			assert not part_b
 			break
 		c += 1
 		ga, gb = result
@@ -77,9 +86,14 @@ def main():
 		inputs = input_from_text(f.read())
 
 	a_board, a_min_b = grid_from_input(inputs)
-	a_count = part_a(a_board, a_min_b)
-	p0(a_board)
+	a_count = part(a_board, a_min_b)
 	print(a_count)
+
+	# there's a better way to do this,
+	# but my computer is just fast enough for this not to totally suck
+	b_board, b_min_b = grid_from_input(inputs, True)
+	b_count = part(b_board, b_min_b, True)
+	print(b_count)
 
 if __name__ == '__main__':
 	main()
