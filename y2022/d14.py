@@ -32,12 +32,12 @@ def simul_grain(board, la, lb):
 			return la, lb
 		raise ValueError
 
-def main():
-	with open('i14.txt') as f:
-		inputs = [x.strip().split(' -> ') for x in f.read().split('\n')]
-	inputs.pop() # ending \n
+def input_from_text(text):
+	inputs = [x.split(' -> ') for x in text.strip().split('\n')]
 	# flip from x,y to r,c for terminal display
-	inputs = [[tuple([int(x) for x in p.split(',')][::-1]) for p in l] for l in inputs]
+	return [[tuple([int(x) for x in p.split(',')][::-1]) for p in l] for l in inputs]
+
+def grid_from_input(inputs, part2 = False):
 	# normalize c
 	max_a = max((p[0] for p in chain.from_iterable(inputs)))
 	max_b = max((p[1] for p in chain.from_iterable(inputs)))
@@ -59,6 +59,9 @@ def main():
 				pb, qb = min(mb, nb), max(mb, nb)
 				board[ma, pb:qb+1] = 1
 
+	return board, min_b
+
+def part_a(board, min_b):
 	c = 0
 	while True:
 		result = simul_grain(board, 0, 500 - min_b)
@@ -67,9 +70,16 @@ def main():
 		c += 1
 		ga, gb = result
 		board[ga, gb] = 2
+	return c
 
-	p0(board)
-	print(c)
+def main():
+	with open('i14.txt') as f:
+		inputs = input_from_text(f.read())
+
+	a_board, a_min_b = grid_from_input(inputs)
+	a_count = part_a(a_board, a_min_b)
+	p0(a_board)
+	print(a_count)
 
 if __name__ == '__main__':
 	main()
