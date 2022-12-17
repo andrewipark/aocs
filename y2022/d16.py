@@ -8,7 +8,10 @@ def l(text):
 			r'Valve (\w{2}) has flow rate=(\d+); tunnels? leads? to valves? ([\w ,]+)'
 		, l)
 		assert m, l
-		s[m[1]] = (int(m[2]), {x: 1 for x in m[3].split(', ')})
+		e = ddd(lambda: float('inf'))
+		for x in m[3].split(', '):
+			e[x] = 1
+		s[m[1]] = (int(m[2]), e)
 	return s
 
 def contract(g):
@@ -19,7 +22,17 @@ def contract(g):
 		g[b][1][a] = min(g[b][1].get(a, float('inf')), g[b][1][x] + g[x][1][a])
 		del g[a][1][x], g[b][1][x], g[x]
 		assert g[a][1][b] == g[b][1][a], (g[a], g[b]) # symmetry
-	return g
+
+def fwap(g):
+	for p in g:
+		g[p][1][p] = 0
+		for q in g:
+			for r in g:
+				w = g[p][1][r]
+				t = g[p][1][q] + g[q][1][r]
+				g[p][1][r] = min(w, t)
+	for p in g:
+		del g[p][1][p]
 
 def explore(g):
 	state = (30, 'AA', set(), 0)
@@ -44,7 +57,7 @@ def explore(g):
 			((time - dist), n, ons, score)
 			for n, dist in g[where][1].items()
 			if time > dist and (
-				n == 'AA' or max(best_states[(n, frozenset(ons))][:1]) < score
+				max(best_states[(n, frozenset(ons))][:1]) < score
 			)
 		))
 
@@ -55,10 +68,9 @@ def explore(g):
 
 def main():
 	with open('i16.txt') as f:
-		g = contract(l(f.read()))
-
-	print(g)
-	print(len(g))
+		g = l(f.read())
+		contract(g)
+		fwap(g)
 
 	print(explore(g))
 
