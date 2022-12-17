@@ -13,6 +13,7 @@ def simul(dirs, n, cheat):
 			'.#.',
 		],
 		[
+			# flip this from the problem text because y (I guess r) is height
 			'###',
 			'..#',
 			'..#'
@@ -48,15 +49,15 @@ def simul(dirs, n, cheat):
 		rock_r = curr_height + 3
 		rock_c = 2
 
-		# check for direction, rock indices, and heights we've already been in before
-		# I thought we'd have to do a height map but apparently not
+		# check for {direction, rock} indices we've already simulated before
+		# I thought we'd have to do a height map, but apparently not
 		st = (dir_counter % len(dirs), i % len(rocks_nd))
 		if st in d and cheat:
 			d[st].append((i, curr_height))
 			if len(d[st]) >= 2:
-				# compute deltas of rocks we've already been
+				# compute {rock counter, height} deltas
 				x = (d[st][-1][0] - d[st][-2][0], d[st][-1][1] - d[st][-2][1])
-				# I don't trust this
+				# I am still unsure that this is mathematically sound
 				if len(last_deltas) < 1000:
 					last_deltas.append(x)
 				elif all((v == x for v in last_deltas)):
@@ -74,7 +75,7 @@ def simul(dirs, n, cheat):
 			shift = dirs[dir_counter % len(dirs)]
 			dir_counter += 1
 
-			# fugly shift calculations
+			# fugly horizontal shift calculations
 			shift_ok = True
 			if (rock_c == 0 and shift == -1) or (rock_c + rock.shape[1] >= 7 and shift == 1):
 				shift_ok = False # well
@@ -87,10 +88,9 @@ def simul(dirs, n, cheat):
 			if shift_ok:
 				rock_c += shift
 
-			# vertical clearance
+			# vertical shift (aka gravity)
 			shift_ok = True
 			if rock_r == 0 or np.any(np.logical_and(ws(rock, rock_r - 1, rock_c), rock)):
-				# can't use ws for some reason
 				well[
 					rock_r : rock_r + rock.shape[0],
 					rock_c : rock_c + rock.shape[1]
