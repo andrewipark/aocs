@@ -32,7 +32,7 @@ def simul(dirs, n, cheat):
 	curr_height = 0
 	calc_height = 0
 	dir_counter = 0
-	well = np.zeros((100, 7))
+	well = np.zeros((100, 7), dtype=np.int8)
 
 	def ws(rock, rock_r, rock_c):
 		return well[
@@ -50,26 +50,30 @@ def simul(dirs, n, cheat):
 		rock_c = 2
 
 		# check for {direction, rock} indices we've already simulated before
-		# I thought we'd have to do a height map, but apparently not
+		# I thought we'd have to do a height map, but according to
+		# https://www.reddit.com/r/adventofcode/comments/znykq2/2022_day_17_solutions/j0k0hoc/
+		# it seems like it's hard to make pathological inputs
 		st = (dir_counter % len(dirs), i % len(rocks_nd))
 		if st in d and cheat:
-			d[st].append((i, curr_height))
-			if len(d[st]) >= 2:
-				# compute {rock counter, height} deltas
-				x = (d[st][-1][0] - d[st][-2][0], d[st][-1][1] - d[st][-2][1])
-				# I am still unsure that this is mathematically sound
-				if len(last_deltas) < 1000:
-					last_deltas.append(x)
-				elif all((v == x for v in last_deltas)):
-					# we seem to have stabilized; cheat
-					cycles = max((n - i - 1) // x[0], 0)
-					calc_height += x[1] * cycles
-					i += x[0] * cycles
-					print(cycles, x, st, i)
-				else:
-					last_deltas.clear()
+			prev_i, prev_height = d[st]
+			d[st] = (i, curr_height)
+			# compute {rock counter, height} deltas
+			x = (i - prev_i, curr_height - prev_height)
+			# I am still unsure that this is mathematically sound
+			if len(last_deltas) < 6:
+				last_deltas.append(x)
+			elif all((v == x for v in last_deltas)):
+				# we seem to have stabilized; cheat
+				cycles = max((n - i - 1) // x[0], 0)
+				calc_height += x[1] * cycles
+				i += x[0] * cycles
+				print(cycles, x, st, i)
+				last_deltas.clear()
+				d.clear()
+			else:
+				last_deltas.clear()
 		else:
-			d[st] = [(i, curr_height)]
+			d[st] = (i, curr_height)
 
 		while True:
 			shift = dirs[dir_counter % len(dirs)]
