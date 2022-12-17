@@ -1,9 +1,10 @@
 import re
 from functools import cache
 from itertools import product
+from math import gcd
 import numpy as np
 
-def simul(dirs, n):
+def simul(dirs, n, cheat):
 	rocks = [
 		['####'],
 		[
@@ -28,6 +29,7 @@ def simul(dirs, n):
 		rocks_nd.append(nd)
 
 	curr_height = 0
+	calc_height = 0
 	dir_counter = 0
 	well = np.zeros((100, 7))
 
@@ -37,10 +39,36 @@ def simul(dirs, n):
 			rock_c : rock_c + rock.shape[1]
 		]
 
-	for i in range(n):
+	d = dict() # (dir_index, rock_index) -> states
+	last_deltas = [] # see loop below
+
+	i = 0
+	while i < n:
 		rock = rocks_nd[i % len(rocks_nd)]
 		rock_r = curr_height + 3
 		rock_c = 2
+
+		# check for direction, rock indices, and heights we've already been in before
+		# I thought we'd have to do a height map but apparently not
+		st = (dir_counter % len(dirs), i % len(rocks_nd))
+		if st in d and cheat:
+			d[st].append((i, curr_height))
+			if len(d[st]) >= 2:
+				# compute deltas of rocks we've already been
+				x = (d[st][-1][0] - d[st][-2][0], d[st][-1][1] - d[st][-2][1])
+				# I don't trust this
+				if len(last_deltas) < 1000:
+					last_deltas.append(x)
+				elif all((v == x for v in last_deltas)):
+					# we seem to have stabilized; cheat
+					cycles = max((n - i - 1) // x[0], 0)
+					calc_height += x[1] * cycles
+					i += x[0] * cycles
+					print(cycles, x, st, i)
+				else:
+					last_deltas.clear()
+		else:
+			d[st] = [(i, curr_height)]
 
 		while True:
 			shift = dirs[dir_counter % len(dirs)]
@@ -73,13 +101,16 @@ def simul(dirs, n):
 		curr_height = max(curr_height, rock_r + rock.shape[0])
 		if curr_height + 8 >= well.shape[0]:
 			well.resize((well.shape[0] * 4 // 3, well.shape[1]), refcheck = False)
+		i += 1
 
-	return curr_height
+	return curr_height + calc_height
 
 def main():
 	with open('i17.txt') as f:
 		dirs = [-1 if c == '<' else 1 for c in f.read().strip()]
-	print(simul(dirs, 2022))
+	print(simul(dirs, 2022, False))
+	assert simul(dirs, 10000, False) == simul(dirs, 10000, True)
+	print(simul(dirs, 1000000000000, True))
 
 if __name__ == '__main__':
 	main()
