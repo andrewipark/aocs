@@ -1,4 +1,5 @@
 import re
+from functools import cache
 from collections import defaultdict as ddd
 
 def l(text):
@@ -34,37 +35,19 @@ def fwap(g):
 	for p in g:
 		del g[p][1][p]
 
-def explore(g):
-	state = (30, 'AA', set(), 0)
-	stack = [state]
-	best_states = ddd(lambda: [-1] * 31)
-	best = 0
-	count = 0
-	while stack:
-		count += 1
-		time, where, ons, score = stack.pop()
-		ma = best_states[(where, frozenset(ons))]
-		for j in range(time + 1):
-			ma[j] = max(ma[j], score)
+def explore(g, time, e):
+	to = time
 
-		if g[where][0] > 0 and where not in ons and time > 0:
-			# turn the valve on
-			new_ons = ons.copy()
-			new_ons.add(where)
-			stack.append((time - 1, where, new_ons, score + (time - 1) * g[where][0]))
-
-		stack.extend((
-			((time - dist), n, ons, score)
-			for n, dist in g[where][1].items()
-			if time > dist and (
-				max(best_states[(n, frozenset(ons))][:1]) < score
-			)
-		))
-
-		best = max(best, score)
-
-	print(f'explored {count} states')
-	return best
+	@cache
+	def score(time, where, ons, e):
+		return max(
+			[
+				(time - dist - 1) * g[n][0] + score(time - dist - 1, n, ons | {n}, e)
+				for n, dist in g[where][1].items() if time > dist and n not in ons
+			]
+			+ [score(to, 'AA', ons, False) if e else 0]
+		)
+	return score(time, 'AA', frozenset(), e)
 
 def main():
 	with open('i16.txt') as f:
@@ -72,7 +55,8 @@ def main():
 		contract(g)
 		fwap(g)
 
-	print(explore(g))
+	print(explore(g, 30, False))
+	print(explore(g, 26, True))
 
 if __name__ == '__main__':
 	main()
