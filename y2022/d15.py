@@ -103,7 +103,8 @@ def main():
 	Y = 2000000
 	print(part_a(sensors, *data(sensors, Y), Y))
 	print(part_b((2767556,), sensors, 2 * Y))
-	# range(Y * 2 + 1)))
+	# SUBOPTIMAL range(Y * 2 + 1))) takes about 50 seconds
+	# internal corporate discussion: you can prune based on the positions of the beacons?
 
 if __name__ == '__main__':
 	main()

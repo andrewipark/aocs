@@ -88,7 +88,8 @@ def main():
 	a_count = part(a_board, a_min_b)
 	print(a_count)
 
-	# there's a better way to do this,
+	# SUBOPTIMAL maybe you compute the total by casting diagonal "shade rays"
+	# from the tops of the ledges and then counting the squares
 	# but my computer is just fast enough for this not to totally suck
 	b_board, b_min_b = grid_from_input(inputs, True)
 	b_count = part(b_board, b_min_b, True)

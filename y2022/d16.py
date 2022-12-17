@@ -24,7 +24,7 @@ def contract(g):
 		del g[a][1][x], g[b][1][x], g[x]
 		assert g[a][1][b] == g[b][1][a], (g[a], g[b]) # symmetry
 
-def fwap(g):
+def floyd_warshall_all_pairs(g):
 	for p in g:
 		g[p][1][p] = 0
 		for q in g:
@@ -53,7 +53,7 @@ def main():
 	with open('i16.txt') as f:
 		g = l(f.read())
 		contract(g)
-		fwap(g)
+		floyd_warshall_all_pairs(g)
 
 	print(explore(g, 30, False))
 	print(explore(g, 26, True))
