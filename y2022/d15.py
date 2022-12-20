@@ -71,19 +71,6 @@ def data(sensors, Y, constrain = None):
 	return beacons, closed_ranges
 
 def part_a(sensors, beacons, closed_ranges, Y):
-	# brute force
-	if False:
-		start_x = min((min(s[0], s[2]) for s in sensors)) * 6
-		end_x = max((max(s[0], s[2]) for s in sensors)) * 6
-		covered = 0
-		for i in range(start_x, end_x + 1):
-			for rd, rf in closed_ranges:
-				if rd <= i <= rf:
-					covered += 1
-					break
-
-		return covered - len([b for b in beacons if b[1] == Y])
-
 	return sum((f - d + 1 for d, f in closed_ranges)) - len([b for b in beacons if b[1] == Y])
 
 def part_b(guesses, sensors, height):
@@ -104,7 +91,8 @@ def main():
 	print(part_a(sensors, *data(sensors, Y), Y))
 	print(part_b((2767556,), sensors, 2 * Y))
 	# SUBOPTIMAL range(Y * 2 + 1))) takes about 50 seconds
-	# internal corporate discussion: you can prune based on the positions of the beacons?
+	# internal corporate discussion: prune based on the positions of the beacons?
+	# and then test the edges? not sure how that one works
 
 if __name__ == '__main__':
 	main()

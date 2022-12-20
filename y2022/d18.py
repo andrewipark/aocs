@@ -9,7 +9,7 @@ def euclidean_neighbors(p):
 		for j in (-1, 1):
 			delta = [0, 0, 0]
 			delta[d] += j
-			yield tuple(map(lambda p: add(*p), zip(p, delta)))
+			yield tuple(map(add, p, delta))
 
 def cuboid(lo, hi):
 	return product(*(range(l, h + 1) for l, h in zip(lo, hi)))

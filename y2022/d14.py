@@ -2,7 +2,7 @@ from functools import cmp_to_key as c2k
 from itertools import chain, pairwise
 import numpy as np
 
-# ffs
+# TODO copy paste
 R= '\033[0m'
 cols = ['\033[30m', '\033[38;5;8m', '\033[38;5;22m']
 

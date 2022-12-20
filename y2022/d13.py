@@ -9,6 +9,7 @@ def s(x):
 		return -1
 	return 0
 
+# TODO this was written before I knew how to structural match in Python
 def c(a, b):
 	if isinstance(a, int) and isinstance(b, list):
 		return c([a], b)

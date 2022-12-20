@@ -13,6 +13,8 @@ def make_grid(abcdf):
 			l[i][j] = (ord(x) - ord('a'), None)
 	return l, start, end
 
+# TODO copy paste-ish
+
 def cc_height(x):
 	assert 0 <= x <= 25
 	if x == 25:

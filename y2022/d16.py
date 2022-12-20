@@ -38,6 +38,7 @@ def floyd_warshall_all_pairs(g):
 def explore(g, time, e):
 	to = time
 
+	# SUBOPTIMAL better pruning strategies probably exist?
 	@cache
 	def score(time, where, ons, e):
 		return max(
