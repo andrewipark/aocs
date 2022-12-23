@@ -11,7 +11,7 @@ def process(board_lines):
 	for p in product(range(rows), range(cols)):
 		r, c = p
 		match board_lines[r][c]:
-			case '#': mobs[p] = list('NSWE')
+			case '#': mobs[p] = [] # list('NSWE') # I thought pt B was going to be that each elf keeps track of its own order list
 	return mobs
 
 def propose(board, curr, order):
@@ -60,22 +60,36 @@ def move(mobs, order):
 		mobs[new] = mobs[curr]
 		del mobs[curr]
 
-def part_a(mobs):
+	return bool(curr_to_new)
+
+def part(mobs):
 	order = 'NSWE'
 	for i in range(10):
-		move(mobs, order)
+		if not move(mobs, order):
+			break
 		order = order[1:] + order[0]
+	else:
+		i += 1
 	# TODO copied from 18 but d = 2 now
+	# part A
 	loc_min = tuple((min((l[d] for l in mobs)) for d in range(2)))
 	loc_max = tuple((max((l[d] for l in mobs)) for d in range(2)))
 	volume = prod(((x - n + 1) for x, n in zip(loc_max, loc_min)))
-	return volume - len(mobs)
+
+	# part b
+	while move(mobs, order):
+		i += 1
+		order = order[1:] + order[0]
+		loc_min = tuple((min((l[d] for l in mobs)) for d in range(2)))
+		loc_max = tuple((max((l[d] for l in mobs)) for d in range(2)))
+
+	return volume - len(mobs), i + 1 # one-based indexing is killing me
 
 def main():
-	with open('i23.txt') as f:
+	with open('i23t.txt') as f:
 		mobs = process(f.read().strip().split('\n'))
 
-	print(part_a(mobs))
+	print(part(mobs))
 
 if __name__ == '__main__':
 	main()
