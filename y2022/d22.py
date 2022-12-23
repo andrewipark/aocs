@@ -18,7 +18,7 @@ class DRC(IE):
 		elif t == Turn.ELDERECHO:
 			v = -1
 		cls = type(self)
-		return cls((self + 1) % len(cls))
+		return cls((self + v) % len(cls))
 
 	def m(self):
 		match self:
@@ -29,7 +29,7 @@ class DRC(IE):
 
 def process_board(board):
 	board_lines = board.split('\n')
-	rows, cols = len(board_lines), len(board_lines[0])
+	rows, cols = len(board_lines), max((len(l) for l in board_lines))
 	# sort points into proper category
 	walls = set()
 	spaces = dict()
@@ -38,6 +38,9 @@ def process_board(board):
 	start_c = None
 	for p in product(range(rows), range(cols)):
 		r, c = p
+		if c >= len(board_lines[r]):
+			gaps.add(p)
+			continue
 		match board_lines[r][c]:
 			case ' ': gaps.add(p)
 			case '#': walls.add(p)
@@ -68,13 +71,33 @@ def process_moves(m):
 	m2 = list(chain.from_iterable(moves_l))
 	moves_r = [list(chain.from_iterable((n, Turn.ELDERECHO) for n in m.split('R'))) if isinstance(m, str) else (m,) for m in m2]
 	[m.pop() for m in moves_r if isinstance(m, list)]
-	return list(chain.from_iterable(moves_r))
+	return [(int(x) if isinstance(x, str) else x) for x in chain.from_iterable(moves_r)]
 
 def process(board, moves):
 	return process_board(board), process_moves(moves)
 
+def do(spaces, pos, d, dist):
+	for i in range(dist):
+		next_pos = spaces[pos][d]
+		if next_pos is None:
+			return pos, i
+		pos = next_pos
+	return next_pos, dist
+
+def part_a(spaces, c, moves):
+	pos = (0, c)
+	assert pos in spaces
+	d = DRC.COLPOS
+	for m in moves:
+		if isinstance(m, int):
+			pos, _ = do(spaces, pos, d, m)
+		else:
+			d = d.t(m) # lmao
+		assert pos in spaces
+	return 1000 * (pos[0] + 1) + 4 * (pos[1] + 1) + (d - 1 % len(DRC))
+
 def main():
-	with open('i22s.txt') as f:
+	with open('i22.txt') as f:
 		(spaces, c), moves = process(*f.read().split('\n\n'))
 
 	print(part_a(spaces, c, moves))
