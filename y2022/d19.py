@@ -97,7 +97,7 @@ def main():
 		print(result_a)
 		print(sum(((i + 1) * v for i, v in enumerate(result_a))))
 
-		# naive multiprocessing doesn't help with this bad of a state space
+		# naive multiprocessing doesn't help with this state space or only 3 inputs
 		# sharding some of the top level calls might help but seems complicated
 		result_b = list(p.map(part_b_fn, b[:3]))
 		print(result_b)

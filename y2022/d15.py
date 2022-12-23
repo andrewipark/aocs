@@ -15,7 +15,7 @@ def sensors_from_input(text):
 			r'Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)'
 		, l)
 		assert m, l
-		s.append(tuple(map(int, (m[1], m[2], m[3], m[4]))))
+		s.append(tuple((int(m[x]) for x in range(1, 4+1))))
 	return s
 
 def coalesce_closed_ranges(x, constrain = None):
