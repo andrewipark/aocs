@@ -1,3 +1,4 @@
+from ast import literal_eval
 from functools import cmp_to_key as c2k
 from itertools import chain
 
@@ -28,7 +29,7 @@ def c(a, b):
 def main():
 	with open('i13.txt') as f:
 		inputs = [x.strip().split('\n') for x in f.read().split('\n\n')]
-	pairs = [tuple((eval(x) for x in p)) for p in inputs]
+	pairs = [tuple((literal_eval(x) for x in p)) for p in inputs]
 	# fucking 1-based indexing!!
 	print(sum((i + 1 for i, x in enumerate((c(a, b) for a, b in pairs)) if x <= 0)))
 
