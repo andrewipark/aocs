@@ -102,5 +102,8 @@ def main():
 
 	print(part_a(spaces, c, moves))
 
+	# there is not much that could convince me to do even a hacky version of pt B
+	# signed, 2 off-work hours of my life
+
 if __name__ == '__main__':
 	main()
