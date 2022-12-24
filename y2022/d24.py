@@ -68,5 +68,11 @@ def main():
 	t = bfs_p1(dims, storms, wauerignflsrhygbisrekgse, 0, wevtwsgdfjghsoerijhprttr)
 	print(t)
 
+	# part b
+	t = bfs_p1(dims, storms, wevtwsgdfjghsoerijhprttr, t, wauerignflsrhygbisrekgse)
+	print(t)
+	t = bfs_p1(dims, storms, wauerignflsrhygbisrekgse, t, wevtwsgdfjghsoerijhprttr)
+	print(t)
+
 if __name__ == '__main__':
 	main()
