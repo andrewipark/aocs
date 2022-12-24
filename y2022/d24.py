@@ -24,15 +24,13 @@ def neighbors(dims, storms, pos, visited, val):
 	l = [(pos, pos, val)]
 	if pos[0] > 0 or (pos == (0, 0)):
 		l.append(((pos[0] - 1, pos[1]), pos, val))
-	if pos[0] < dims[0] - 1:
+	if pos[0] < dims[0] - 1 or (pos[0] == dims[0] - 1 and pos[1] == dims[1] - 1):
 		l.append(((pos[0] + 1, pos[1]), pos, val))
-	if pos[1] > 0 and pos[0] >= 0:
+	if pos[1] > 0 and 0 <= pos[0] < dims[0]:
 		l.append(((pos[0], pos[1] - 1), pos, val))
-	if pos[1] < dims[1] - 1 and pos[0] >= 0:
+	if pos[1] < dims[1] - 1 and 0 <= pos[0] < dims[0]:
 		l.append(((pos[0], pos[1] + 1), pos, val))
-	if pos[0] == dims[0] - 1 and pos[1] == dims[1] - 1:
-		l.append((None, pos, val))
-	result = [v for v in l if (v[0], val) not in visited and (v[0] is None or storms_pred(dims, storms, v[0], val))]
+	result = [v for v in l if (v[0], val) not in visited and storms_pred(dims, storms, v[0], val)]
 	for v in result:
 		visited.add((v[0], val))
 	return result
@@ -46,18 +44,16 @@ def storms_pred(dims, storms, pos, val):
 			return False
 	return True
 
-def bfs_p1(dims, storms):
+def bfs_p1(dims, storms, start, time, goal):
 	visited = set()
-	q = deque([(((-1, 0), None, 0))])
+	q = deque([((start, None, time))])
 	for s in q:
 		visited.add((s[0], s[2]))
 	while q:
 		curr, prev, dist = q.popleft()
-		if curr is None:
+		if curr == goal:
 			return dist
 		q.extend(neighbors(dims, storms, curr, visited, dist + 1))
-		if len(visited) % 131072 == 0:
-			print(len(visited))
 
 def main():
 	with open('i24.txt') as f:
@@ -65,7 +61,12 @@ def main():
 	dims = r[2:4]
 	storms = r[0:2]
 
-	print(bfs_p1(dims, storms))
+	wauerignflsrhygbisrekgse = (-1, 0)
+	wevtwsgdfjghsoerijhprttr = (dims[0], dims[1] - 1)
+
+	# part a
+	t = bfs_p1(dims, storms, wauerignflsrhygbisrekgse, 0, wevtwsgdfjghsoerijhprttr)
+	print(t)
 
 if __name__ == '__main__':
 	main()
