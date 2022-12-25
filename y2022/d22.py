@@ -1,4 +1,5 @@
 from enum import Enum as E, IntEnum as IE, auto
+from math import gcd as gdc
 from itertools import chain, product
 
 class Turn(E):
@@ -7,16 +8,16 @@ class Turn(E):
 
 # TODO like 9.py
 class DRC(IE):
-	ROWPOS = 0
-	COLPOS = auto()
-	ROWNEG = auto()
+	COLPOS = 0
+	ROWPOS = auto()
 	COLNEG = auto()
+	ROWNEG = auto()
 
 	def t(self, t: Turn):
 		if t == Turn.IZQUIERDA:
-			v = 1
-		elif t == Turn.ELDERECHO:
 			v = -1
+		elif t == Turn.ELDERECHO:
+			v = 1
 		cls = type(self)
 		return cls((self + v) % len(cls))
 
@@ -27,22 +28,20 @@ class DRC(IE):
 			case DRC.ROWNEG: return (-1, 0)
 			case DRC.COLNEG: return (0, -1)
 
-def process_board(board):
+def process_board(board, flat):
 	board_lines = board.split('\n')
 	rows, cols = len(board_lines), max((len(l) for l in board_lines))
+	cell_size = gdc(rows, cols)
 	# sort points into proper category
 	walls = set()
 	spaces = dict()
-	gaps = set()
 	probes = {x: list() for x in DRC}
 	start_c = None
 	for p in product(range(rows), range(cols)):
 		r, c = p
 		if c >= len(board_lines[r]):
-			gaps.add(p)
 			continue
 		match board_lines[r][c]:
-			case ' ': gaps.add(p)
 			case '#': walls.add(p)
 			case '.': spaces[p] = {}
 		if r == 0 and not start_c and (walls or spaces):
@@ -52,15 +51,16 @@ def process_board(board):
 	# and then could "jump" across them instead of traversing them
 	for p, d in product(spaces.keys(), DRC):
 		next_p = p
+		nd = d
 		while True:
-			next_p = tuple((l + q) % j for l, q, j in zip(next_p, d.m(), (rows, cols)))
+			next_p = tuple((l + q) % j for l, q, j in zip(next_p, nd.m(), (rows, cols)))
 			if next_p in spaces:
 				result = next_p
 				break
 			if next_p in walls:
 				result = None
 				break
-		spaces[p][d] = result
+		spaces[p][d] = (result, nd)
 
 	return spaces, start_c
 
@@ -73,16 +73,20 @@ def process_moves(m):
 	[m.pop() for m in moves_r if isinstance(m, list)]
 	return [(int(x) if isinstance(x, str) else x) for x in chain.from_iterable(moves_r)]
 
-def process(board, moves):
-	return process_board(board), process_moves(moves)
+def process(board, moves, flat):
+	return process_board(board, flat), process_moves(moves)
 
 def do(spaces, pos, d, dist):
 	for i in range(dist):
-		next_pos = spaces[pos][d]
+		try:
+			next_pos, next_dir = spaces[pos][d]
+		except KeyError:
+			print(pos, d, pos in spaces, (d in spaces[pos]) if (pos in spaces) else False)
+			raise
 		if next_pos is None:
-			return pos, i
-		pos = next_pos
-	return next_pos, dist
+			return pos, d, i
+		pos, d = next_pos, next_dir
+	return pos, d, dist
 
 def part_a(spaces, c, moves):
 	pos = (0, c)
@@ -90,20 +94,19 @@ def part_a(spaces, c, moves):
 	d = DRC.COLPOS
 	for m in moves:
 		if isinstance(m, int):
-			pos, _ = do(spaces, pos, d, m)
+			pos, d, _ = do(spaces, pos, d, m)
 		else:
 			d = d.t(m) # lmao
 		assert pos in spaces
-	return 1000 * (pos[0] + 1) + 4 * (pos[1] + 1) + (d - 1 % len(DRC))
+	return 1000 * (pos[0] + 1) + 4 * (pos[1] + 1) + (d % len(DRC))
 
 def main():
 	with open('i22.txt') as f:
-		(spaces, c), moves = process(*f.read().split('\n\n'))
+		rb, rm = f.read().split('\n\n')
 
+	# part A
+	(spaces, c), moves = process(rb, rm, True)
 	print(part_a(spaces, c, moves))
-
-	# there is not much that could convince me to do even a hacky version of pt B
-	# signed, 2 off-work hours of my life
 
 if __name__ == '__main__':
 	main()
